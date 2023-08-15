@@ -1,0 +1,43 @@
+services:
+    rabbitmq:
+        image: rabbitmq:3-management
+        container_name: bale_botrabbitmq
+        networks:
+          - network1
+    flask:
+        build:
+          context: .
+          dockerfile: Dockerfile
+        image: bale_bot:v1
+        container_name: bale_bot
+        ports:
+          - '8080:80'
+        networks:
+          - network1
+        depends_on:
+          - rabbitmq
+          - db
+        volumes:
+          - /var/docker-data/bale-bot-request-manager/static/users:/app/static/users
+    db:
+        image: postgres
+        restart: always
+        container_name: bale_botpostgres
+        ports:
+          - '5435:5432'
+        environment:
+           POSTGRES_USER: postgres
+           POSTGRES_PASSWORD: a
+           POSTGRES_DB: bale_bot
+        volumes:
+          - db:/var/lib/postgresql/data
+          - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+        networks:
+          - network1
+networks:
+  network1:
+    name: bale_bot
+    external: true
+volumes:
+  db:
+    driver: local
