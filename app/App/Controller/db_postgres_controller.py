@@ -72,6 +72,11 @@ class PostgreSQL:
         args = (status, result, req_uuid)
         self.execute_query(query,args)
 
+    def changeParams(self, params, uuid):
+        query = 'UPDATE request SET params=%s where uuid=%s'
+        args = (params, uuid)
+        self.execute_query(query,args)
+
     # Checks whether it is already registered or not
     def check_duplicate_id(self, id):
         query = "SELECT id FROM users WHERE id=%s"
@@ -160,7 +165,6 @@ class PostgreSQL:
         args = (type,)
         res = self.execute_query(query,args).fetchall()
         return res
-    
     
 
     # Users info

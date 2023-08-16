@@ -51,6 +51,11 @@ keyboard_cancel_help = [[
         ]]
 reply_markup_cancel_help = InlineKeyboardMarkup(keyboard_cancel_help)
 
+keyboard_cancel_getResult = [[
+            InlineKeyboardButton("بازگشت به صفحه اصلی", callback_data="/cancel"),
+            InlineKeyboardButton("نتیجه درخواست", callback_data="/get-result")
+        ]]
+reply_markup_cancel_getResult = InlineKeyboardMarkup(keyboard_cancel_getResult)
 
 async def start(update, context, _text, _STEP, chat_id):
     user = User(username=update.message.from_user.username , id=chat_id)
@@ -76,7 +81,7 @@ async def get_result(req_uuid, chat_id, update, context):
         await context.bot.send_message(chat_id=chat_id, text='شناسه درخواست معتبر نمی باشد.', reply_markup=reply_markup_cancel)
         return
     elif res['status-code']  == 202:
-        await context.bot.send_message(chat_id=chat_id, text=f' شناسه درخواست : { res["request_id"] } \n نتیجه درخواست: درخواست منتظر پردازش می باشد\n برای بررسی نتیجه درخواست دستور get-result/ را وارد کنید', reply_markup=reply_markup_cancel)
+        await context.bot.send_message(chat_id=chat_id, text=f' شناسه درخواست : { res["request_id"] } \n نتیجه درخواست: درخواست منتظر پردازش می باشد \n برای بررسی نتیجه بر روی نتیجه درخواست ها ضربه بزنید', reply_markup=reply_markup_cancel_getResult)
         
     # Done  
     
@@ -87,7 +92,10 @@ async def get_result(req_uuid, chat_id, update, context):
     elif res['type'] == '/hide-text-in-image': # hide text in image 
         img_path = res['result']['url']
         await context.bot.send_message(chat_id=chat_id, text=f' شناسه درخواست : { res["request_id"] } \n نتیجه درخواست: درخواست با موفقیت تکمیل شد. تصویر خروجی در حال ارسال می باشد')
-        await context.bot.send_document(chat_id=chat_id, document=img_path, reply_markup=reply_markup_cancel)
+        try:
+            await context.bot.send_document(chat_id=chat_id, document=img_path, reply_markup=reply_markup_cancel)
+        except:
+            await context.bot.send_message(chat_id=chat_id, text=f'ارسال فایل با مشکل مواجه شده است. لطفا بر روی نتیجه درخواست ضربه بزنید', reply_markup=reply_markup_cancel_getResult)
         
     elif res['type'] == '/get-hidden-text-from-image': # get hidden text from image
         if res["result"] == "this images doesn't have any hidden text":
@@ -97,8 +105,12 @@ async def get_result(req_uuid, chat_id, update, context):
             
     elif res['type'] == '/hide-text-in-sound': # hidde text in sound
         sound_path = res['result']['url']
-        await context.bot.send_message(chat_id=chat_id, text=f' شناسه درخواست : { res["request_id"] } \n نتیجه درخواست: درخواست با موفقیت تکمیل شد. فایل صوتی خروجی در حال ارسال می باشد', reply_markup=reply_markup_cancel)
-        await context.bot.send_document(chat_id=chat_id, document=sound_path, reply_markup=reply_markup_cancel)
+        await context.bot.send_message(chat_id=chat_id, text=f' شناسه درخواست : { res["request_id"] } \n نتیجه درخواست: درخواست با موفقیت تکمیل شد. فایل صوتی خروجی در حال ارسال می باشد')
+        try:
+            await context.bot.send_document(chat_id=chat_id, document=sound_path, reply_markup=reply_markup_cancel)
+        except:
+            await context.bot.send_message(chat_id=chat_id, text=f'ارسال فایل با مشکل مواجه شده است. لطفا بر روی نتیجه درخواست ضربه بزنید', reply_markup=reply_markup_cancel_getResult)
+            
     
     elif res['type'] == '/get-hidden-text-from-sound': # get hidden text from image
         if res["result"] == "this sound doesn't have any hidden text":
@@ -235,7 +247,7 @@ async def get_hidden_text_from_image(update, context, text, _STEP, chat_id):
     send_request.send(req_uuid)  # Send request to queue
     await context.bot.send_message(chat_id=chat_id, text='درخواست در صف انجام قرار دارد. \nلطفا چند لحظه صبر کنید')
     time.sleep(5)
-    await get_result(req_uuid, chat_id, update, None)
+    await get_result(req_uuid, chat_id, update, context)
     db.db.changeUserSTEP('home', chat_id)
 
 

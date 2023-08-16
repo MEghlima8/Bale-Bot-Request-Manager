@@ -36,38 +36,60 @@ def add(info):
     return res
 
 
+def hide_in_sound(info):     
+    text = info[3]["text"]
+    
+    # save image before hide process in local storage
+    audio_url_before_hide = save_media(result=info[3], route=info[2], user_id=info[1])
+    params = json.dumps({'url':audio_url_before_hide['result']['url'], 'text':text})
+    db.db.changeParams(params=params, uuid=info[8])
+    
+    audio_path = info[3]["url"]
+    res = api.hide_text_in_sound(text, audio_path) # Send audio url to core api
+    return res
+
+def get_from_sound(info): 
+    # save audio before extract process in local storage
+    audio_url_before_hide = save_media(result=info[3], route=info[2], user_id=info[1])
+    params = json.dumps(audio_url_before_hide['result'])
+    db.db.changeParams(params=params, uuid=info[8])
+    
+    url = info[3]["url"]
+    res = api.get_hidden_text_from_sound(url)
+    return res
+    
 def hide_text(info):
     text = info[3]["text"]
+    
+    # save image before hide process in local storage
+    img_url_before_hide = save_media(result=info[3], route=info[2], user_id=info[1])
+    params = json.dumps({'url':img_url_before_hide['result']['url'], 'text':text})
+    db.db.changeParams(params=params, uuid=info[8])
+    
     image_path = info[3]["url"]
-    res = api.hide_text_in_image(text, image_path)
+    res = api.hide_text_in_image(text, image_path) # Send image url to core api
     return res
 
 def get_text(info):
+    # save image before extract process in local storage
+    img_url_before_hide = save_media(result=info[3], route=info[2], user_id=info[1])
+    params = json.dumps(img_url_before_hide['result'])
+    db.db.changeParams(params=params, uuid=info[8])
+    
     image_path = info[3]["url"]
     res = api.get_hidden_text_from_image(image_path)
     return res
 
 
-def hide_in_sound(info):     
-    text_to_hide = info[3]["text"]    
-    audio_path = info[3]["url"]
-    res = api.hide_text_in_sound(text_to_hide, audio_path)
-    return res
-
-def get_from_sound(info): 
-    url = info[3]["url"]
-    res = api.get_hidden_text_from_sound(url)
-    return res
-    
 # Save media in local storage
 def save_media(result,route, user_id):
     config_path = '.' + config.configs["UPLOAD_USER_FILE"] + str(user_id) + '/'
     if not os.path.exists(config_path):
         os.makedirs(config_path)
         
-    if route == '/hide-text-in-image':
+    if route == '/hide-text-in-image' or route == '/get-hidden-text-from-image':
         format = '.png'
-    elif route == '/hide-text-in-sound':
+    elif route == '/hide-text-in-sound' or route == '/get-hidden-text-from-sound':
         format = '.wav'
     
     response = requests.get(result['url'])
