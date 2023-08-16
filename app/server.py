@@ -393,7 +393,7 @@ async def message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 
 
 def main():
-    # time.sleep(10)
+    time.sleep(20)
     
     # Run web server
     t = threading.Thread(None, web_server.main, None, ())
