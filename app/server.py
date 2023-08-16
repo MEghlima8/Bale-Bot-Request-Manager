@@ -58,10 +58,16 @@ keyboard_cancel_getResult = [[
 reply_markup_cancel_getResult = InlineKeyboardMarkup(keyboard_cancel_getResult)
 
 async def start(update, context, _text, _STEP, chat_id):
-    user = User(username=update.message.from_user.username , id=chat_id)
+    try:
+        username = update.callback_query.from_user.username
+        first_name = update.callback_query.from_user.first_name
+    except:
+        username = update.message.from_user.username
+        first_name = update.message.from_user.first_name
+    user = User(username=username, id=chat_id)
     user.signup()    
-    await context.bot.send_message(chat_id=update.effective_chat.id, text='سلام {}\nبه ربات {} خوش آمدید\nبرای استفاده از ربات یکی از گزینه های زیر را انتخاب کنید : '.format(update.message.from_user.first_name, config.configs['SYSTEM_NAME']), reply_markup=reply_markup_start)
-    db.db.changeUserSTEP('home', update.message.chat_id)
+    await context.bot.send_message(chat_id=chat_id, text='سلام {}\nبه ربات {} خوش آمدید\nبرای استفاده از ربات یکی از گزینه های زیر را انتخاب کنید : '.format(first_name, config.configs['SYSTEM_NAME']), reply_markup=reply_markup_start)
+    db.db.changeUserSTEP('home', chat_id)
     
 async def help(_update, context, _text, _STEP, chat_id):
     await context.bot.send_message(chat_id, text=' برای ارسال تصویر و صدا به صورت فایل ابتدا از سمت چپ و پایین بر روی آیکون + ضربه بزنید سپس بر روی ارسال به صورت فایل ضربه بزنید')
@@ -351,8 +357,6 @@ commands = [
 
 
 async def message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    
-    
     try:
         text = update.callback_query.data
         chat_id = update.effective_chat.id
@@ -360,10 +364,17 @@ async def message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         text = update.message.text
         chat_id = update.message.chat_id
         
-    text,STEP = db.db.changeUserTextMessage(text, chat_id)    
-    
+    print('text: ',text)
+    print('chat_id: ',chat_id)
+    # import pdb;pdb.set_trace()
+    try:
+        text,STEP = db.db.changeUserTextMessage(text, chat_id)    
+    except: # Save user info in the database
+        await start(update, context, None, None, chat_id)
+        return
+        
     if text is None:
-        text = '/none'
+        text = '/none' # It means sent media or location, not a text
         
     if STEP == 'handle-get-result' and not text.startswith('/'):
         await get_result(text, update.message.chat_id, update, context)
@@ -371,19 +382,18 @@ async def message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     for command in commands:
         valid_command = False
-        pattern, step, callback = command
-        
+        pattern, step, callback = command 
         if match(pattern, text) and match(step, STEP):
             valid_command = True
             await callback(update,context,text,STEP,chat_id)
             break
-
+        
     if not valid_command:
         await context.bot.send_message(chat_id=chat_id, text='لطفا یک دستور معتبر وارد کنید!')
                 
 
 def main():
-    time.sleep(20)
+    # time.sleep(10)
     
     # Run web server
     t = threading.Thread(None, web_server.main, None, ())

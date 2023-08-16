@@ -40,6 +40,13 @@ class PostgreSQL:
         return cur
     
     
+    def signupUser(self, username, user_id):
+        query = "INSERT INTO users (id,username) VALUES (%s , %s)"
+        args =(user_id,username)
+        self.execute_query(query, args)
+        return 'true' 
+        
+    
     # Add request to database
     def addReqToDb(self , user_id, type, j_params, time, uuid):
         query = "INSERT INTO request (user_id,type,params,time,status,uuid) VALUES (%s , %s , %s , %s , 'in queue' , %s) RETURNING uuid"
