@@ -11,32 +11,50 @@ app_methods.change_panel = function(panel,admin_panel){
 }
 
 
-// app_methods.onClick_searchBarAdvs = function(){
-//     if (this.search_bar_val != ''){
-//         data = {'search_bar_val':this.search_bar_val};
-//         axios.post('/on-click-search-bar',data).then(response => {
-//             console.log(response.data)
-            
-//             if (response.data['2'] == '/add-two-numbers'){
-//                 this.admin_panel == 'admin-res-add-calc'
-//                 res_done = res_processing = res_queue = null;
-//                 // if ()
-//             }
+// User is searching with a specified uuid
+app_methods.onClick_searchBarAdvs = function(){
+    if (this.search_bar_val != ''){
+        data = {'search_bar_val':this.search_bar_val};
 
-//             else if (response.data['2'] == '/hide-text-in-image'){
-                
-//             }
-//             else if (response.data['2'] == '/get-text-from-image'){
-                
-//             }
-//             else if (response.data['2'] == '/hide-text-in-sound'){
-                
-//             }
-//             else if (response.data['2'] == '/get-text-from-sound'){
-                
-//             }
-//         });        
-//     }}
+        axios.post('/on-click-search-bar',data).then(response => {
+            console.log(response.data)
+            this.res_queue = this.res_done = this.res_processing = null
+            
+            if (response.data[0][2] == '/add-two-numbers'){
+                this.change_panel('admin','admin-res-add-calc')
+                admin_panel = 'admin-res-add-calc'
+            }
+            else if (response.data[0][2] == '/hide-text-in-image'){
+                this.change_panel('admin','admin-res-steg-img')
+                admin_panel = 'admin-res-steg-img'
+            }
+            else if (response.data[0][2] == '/get-hidden-text-from-image'){
+                this.change_panel('admin','admin-res-extr-steg-img')
+                admin_panel = 'admin-res-extr-steg-img'
+            }
+            else if (response.data[0][2] == '/hide-text-in-sound'){
+                this.change_panel('admin','admin-res-steg-audio')
+                admin_panel = 'admin-res-steg-audio'
+            }
+            else if (response.data[0][2] == '/get-hidden-text-from-sound'){
+                this.change_panel('admin','admin-res-extr-audio')
+                admin_panel = 'admin-res-extr-audio'
+            }
+            console.log('panel1: ',this.admin_panel);
+            console.log('status: ',response.data[0][5])
+            if (response.data[0][5] == 'done'){
+                this.res_done = response.data
+            }
+            else if (response.data[0][5] == 'processing'){
+                this.res_processing = response.data
+            }
+            else {
+                this.res_queue = response.data
+            }
+            console.log('panel2: ',this.admin_panel);
+        });
+        this.search_bar_val = null;      
+    }}
 
 
 
@@ -68,7 +86,6 @@ app_methods.getUserReqs = function(user_id){
 }
 
 
-
 // Get admin dashboard info
 app_methods.getAdminDashboardInfo = function(){
     var data = {
@@ -91,7 +108,8 @@ app_methods.getAdminDashboardInfo = function(){
 
 
 app_methods.admin_resAddCalc = function(){
-    axios.post('/admin-res-add-calc').then(response => {          
+    axios.post('/admin-res-add-calc').then(response => {    
+        console.log('add-calc: ',response.data["result"]["done"])      
         this.res_queue = response.data["result"]["queue"]
         this.res_processing = response.data["result"]["processing"]
         this.res_done = response.data["result"]["done"]  

@@ -1,6 +1,6 @@
 # bale bot request manager 
 Bale Bot Request Manager is a project that uses the APIs of the request manager project.
-This is version 0.1.0
+This is version 0.1.2
 
 
 ## Configuration
@@ -14,11 +14,11 @@ Open the ".env" file and find the variables and change its values to the desire 
 
 2. **DOMAIN_ADDRESS**
 
-3. **TARGET_API_URL**:
+3. **TARGET_API_URL**
 
-4. **API_USERNAME**:
+4. **API_USERNAME**
 
-5. **API_PASSWORD**:
+5. **API_PASSWORD**
 
 6. **BOT_TOKEN**
 

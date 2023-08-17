@@ -24,7 +24,15 @@ BASE_FILE_URL = config.configs['BASE_FILE_URL']
 
 def get_datetime():
     jdate = jdatetime.fromgregorian(datetime=datetime.now())
-    time = f'{jdate.hour+3}:{jdate.minute+30}:{jdate.second}'
+    hour = jdate.hour + 3
+    minute = jdate.minute + 30
+    second = jdate.second
+    if minute > 59 :
+       minute -= 60
+    if hour > 23 : 
+        hour -= 24
+        
+    time = f'{hour}:{minute}:{second}'
     date = f'{jdate.year}-{jdate.month}-{jdate.day}'
     now_datetime = json.dumps({'date':date , 'time':time})
     return now_datetime
