@@ -13,6 +13,12 @@ app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024
 def index():
     return render_template('index.html')
 
+@app.route('/on-click-search-bar', methods=['POST'])
+def on_click_search_bar():
+    j_body_data = request.get_json()
+    uuid = j_body_data['search_bar_val']
+    return admin.find_req_with_uuid(uuid)
+
 
 @app.route('/admin-get-user-reqs', methods = ['POST'])
 def admin_get_user_reqs():

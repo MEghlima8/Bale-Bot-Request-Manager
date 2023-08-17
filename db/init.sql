@@ -13,7 +13,7 @@ CREATE TABLE request (
     user_id INT NOT NULL ,
     type VARCHAR (50) NOT NULL ,
     params JSONB NOT NULL ,
-    time VARCHAR (255) ,
+    time JSONB ,
     status VARCHAR (50) ,
     api_req_id INT ,
     result JSONB ,

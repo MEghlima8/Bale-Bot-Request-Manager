@@ -5,6 +5,7 @@ from App.Controller import send_request
 from App.Controller import process
 from App.Controller import db_postgres_controller as db
 from datetime import datetime
+from jdatetime import datetime as jdatetime
 import json
 import threading
 import uuid
@@ -20,6 +21,13 @@ TOKEN = config.configs['BOT_TOKEN']
 BASE_URL = config.configs['BASE_URL']
 BASE_FILE_URL = config.configs['BASE_FILE_URL']
      
+
+def get_datetime():
+    jdate = jdatetime.fromgregorian(datetime=datetime.now())
+    time = f'{jdate.hour+3}:{jdate.minute+30}:{jdate.second}'
+    date = f'{jdate.year}-{jdate.month}-{jdate.day}'
+    now_datetime = json.dumps({'date':date , 'time':time})
+    return now_datetime
 
 keyboard_start = [
     [
@@ -39,7 +47,6 @@ keyboard_start = [
 ]
 reply_markup_start = InlineKeyboardMarkup(keyboard_start)
 
-
 keyboard_cancel = [[
             InlineKeyboardButton("بازگشت به صفحه اصلی", callback_data="/cancel")
         ]]
@@ -56,6 +63,7 @@ keyboard_cancel_getResult = [[
             InlineKeyboardButton("نتیجه درخواست", callback_data="/get-result")
         ]]
 reply_markup_cancel_getResult = InlineKeyboardMarkup(keyboard_cancel_getResult)
+
 
 async def start(update, context, _text, _STEP, chat_id):
     try:
@@ -152,12 +160,12 @@ async def handle_numbers(update, context, text, _STEP, chat_id):
         db.db.changeUserSTEP('enter-num2', chat_id)
         
 async def add_two_numbers(num1, num2, update, context, chat_id):
-    now_time = str(datetime.now())
+    j_date_time = get_datetime()
     params = json.dumps({"num1": num1,
                         "num2": num2
                         })
     # Add request to database
-    req_uuid = db.db.addReqToDb(chat_id, '/add-two-numbers', params, now_time, uuid.uuid4().hex)
+    req_uuid = db.db.addReqToDb(chat_id, '/add-two-numbers', params, j_date_time, uuid.uuid4().hex)
     
     
     send_request.send(req_uuid)  # Send request to queue
@@ -217,12 +225,12 @@ async def hide_text_in_image(update, context, text, _STEP, chat_id):
         
     file = await context.bot.get_file(update.message.document)
     
-    now_time = str(datetime.now())
+    j_date_time = get_datetime()
     params = json.dumps({"url" : file.file_path , 
                         "text" : message})
     
     # Add request to database
-    req_uuid = db.db.addReqToDb(chat_id, '/hide-text-in-image', params, now_time, uuid.uuid4().hex)
+    req_uuid = db.db.addReqToDb(chat_id, '/hide-text-in-image', params, j_date_time, uuid.uuid4().hex)
     send_request.send(req_uuid)  # Send request to queue
     await context.bot.send_message(chat_id=chat_id, text='درخواست در صف انجام قرار دارد. \nلطفا چند لحظه صبر کنید')
     time.sleep(5)
@@ -246,10 +254,10 @@ async def get_hidden_text_from_image(update, context, text, _STEP, chat_id):
         return        
         
     file = await context.bot.get_file(update.message.document)
-    now_time = str(datetime.now())
+    j_date_time = get_datetime()
     params = json.dumps({"url" : file.file_path })
     
-    req_uuid = db.db.addReqToDb(chat_id, '/get-hidden-text-from-image', params, now_time, uuid.uuid4().hex)
+    req_uuid = db.db.addReqToDb(chat_id, '/get-hidden-text-from-image', params, j_date_time, uuid.uuid4().hex)
     send_request.send(req_uuid)  # Send request to queue
     await context.bot.send_message(chat_id=chat_id, text='درخواست در صف انجام قرار دارد. \nلطفا چند لحظه صبر کنید')
     time.sleep(5)
@@ -285,12 +293,12 @@ async def hide_text_in_sound(update, context, text, _STEP, chat_id):
         return
     
     file = await context.bot.get_file(update.message.document)
-    now_time = str(datetime.now())
+    j_date_time = get_datetime()
     params = json.dumps({"url" : file.file_path , 
                         "text" : message})
     
     # Add request to database
-    req_uuid = db.db.addReqToDb(chat_id, '/hide-text-in-sound', params, now_time, uuid.uuid4().hex)
+    req_uuid = db.db.addReqToDb(chat_id, '/hide-text-in-sound', params, j_date_time, uuid.uuid4().hex)
     send_request.send(req_uuid)  # Send request to queue
     await context.bot.send_message(chat_id=chat_id, text='درخواست در صف انجام قرار دارد. \nلطفا چند لحظه صبر کنید')
     time.sleep(5)
@@ -314,10 +322,10 @@ async def get_hidden_text_from_sound(update, context, text, _STEP, chat_id):
         return
 
     file = await context.bot.get_file(update.message.document)
-    now_time = str(datetime.now())
+    j_date_time = get_datetime()
     params = json.dumps({"url" : file.file_path })
     
-    req_uuid = db.db.addReqToDb(chat_id, '/get-hidden-text-from-sound', params, now_time, uuid.uuid4().hex)
+    req_uuid = db.db.addReqToDb(chat_id, '/get-hidden-text-from-sound', params, j_date_time, uuid.uuid4().hex)
     send_request.send(req_uuid)  # Send request to queue
     await context.bot.send_message(chat_id=chat_id, text='درخواست در صف انجام قرار دارد. \nلطفا چند لحظه صبر کنید')
     time.sleep(5)
@@ -364,9 +372,6 @@ async def message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         text = update.message.text
         chat_id = update.message.chat_id
         
-    print('text: ',text)
-    print('chat_id: ',chat_id)
-    # import pdb;pdb.set_trace()
     try:
         text,STEP = db.db.changeUserTextMessage(text, chat_id)    
     except: # Save user info in the database
@@ -393,7 +398,7 @@ async def message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 
 
 def main():
-    time.sleep(20)
+    # time.sleep(20)
     
     # Run web server
     t = threading.Thread(None, web_server.main, None, ())

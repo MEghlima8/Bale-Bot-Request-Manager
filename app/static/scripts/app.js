@@ -11,10 +11,38 @@ app_methods.change_panel = function(panel,admin_panel){
 }
 
 
+// app_methods.onClick_searchBarAdvs = function(){
+//     if (this.search_bar_val != ''){
+//         data = {'search_bar_val':this.search_bar_val};
+//         axios.post('/on-click-search-bar',data).then(response => {
+//             console.log(response.data)
+            
+//             if (response.data['2'] == '/add-two-numbers'){
+//                 this.admin_panel == 'admin-res-add-calc'
+//                 res_done = res_processing = res_queue = null;
+//                 // if ()
+//             }
+
+//             else if (response.data['2'] == '/hide-text-in-image'){
+                
+//             }
+//             else if (response.data['2'] == '/get-text-from-image'){
+                
+//             }
+//             else if (response.data['2'] == '/hide-text-in-sound'){
+                
+//             }
+//             else if (response.data['2'] == '/get-text-from-sound'){
+                
+//             }
+//         });        
+//     }}
+
+
+
 app_methods.getUserReqs = function(user_id){
     var data = { 'user_id' : user_id }
     axios.post('/admin-get-user-reqs', data).then(response => { 
-        console.log(response.data) 
         if (response.data['status-code'] == 200) { 
             this.add_calc_completed_reqs = response.data["result"]["add_calc"]["done"]
             this.add_calc_processing_reqs = response.data["result"]["add_calc"]["processing"]
@@ -99,7 +127,7 @@ app_methods.admin_resStegAudio = function(){
 };
 
 app_methods.admin_resExtrStegAudio = function(){
-    axios.post('/admin-res-extr-audio').then(response => {          
+    axios.post('/admin-res-extr-audio').then(response => {
         this.res_queue = response.data["result"]["queue"]
         this.res_processing = response.data["result"]["processing"]
         this.res_done = response.data["result"]["done"]  
@@ -111,7 +139,6 @@ app_methods.admin_resExtrStegAudio = function(){
 app_methods.admin_usersInfo = function(){
     axios.post('/admin-users-info').then(response => {
         this.users_info = response.data["result"]
-        console.log(this.users_info)
         for (let i = 0; i < this.users_info.length; i++) {
             if (this.users_info[i][1] === null) {
                 this.users_info[i][1] = 'بدون نام کاربری';
@@ -120,7 +147,6 @@ app_methods.admin_usersInfo = function(){
     })
     this.change_panel('admin','admin-users-info');
 };
-
 
 
 // Signin
@@ -182,6 +208,8 @@ Vue.createApp({
         sound_get_completed_reqs:'',
         // #END User all requests 
 
+        // search-bar
+        search_bar_val: '',
     } },
     
     delimiters: ["${", "}$"],    

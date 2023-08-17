@@ -137,38 +137,38 @@ class PostgreSQL:
 
     
     def admin_userResDone(self, type, user_id):
-        query = "SELECT user_id, id, status, params, result, uuid FROM request WHERE status='done' AND type=%s AND user_id=%s"
+        query = "SELECT user_id, id, status, params, result, uuid, time FROM request WHERE status='done' AND type=%s AND user_id=%s"
         args = (type,user_id)
         res = self.execute_query(query,args).fetchall()
         return res    
 
     def admin_userResQueue(self, type, user_id):
-        query = "SELECT user_id, id, status, params, result, uuid FROM request WHERE status='in queue' AND type=%s AND user_id=%s"
+        query = "SELECT user_id, id, status, params, result, uuid, time FROM request WHERE status='in queue' AND type=%s AND user_id=%s"
         args = (type,user_id)
         res = self.execute_query(query,args).fetchall()
         return res    
 
     def admin_userResProcessing(self, type, user_id):
-        query = "SELECT user_id, id, status, params, result, uuid FROM request WHERE status='processing' AND type=%s AND user_id=%s"
+        query = "SELECT user_id, id, status, params, result, uuid, time FROM request WHERE status='processing' AND type=%s AND user_id=%s"
         args = (type,user_id)
         res = self.execute_query(query,args).fetchall()
         return res    
 
     
     def admin_resDone(self, type):
-        query = "SELECT user_id, id, status, params, result, uuid FROM request WHERE status='done' AND type=%s"
+        query = "SELECT user_id, id, status, params, result, uuid, time FROM request WHERE status='done' AND type=%s"
         args = (type,)
         res = self.execute_query(query,args).fetchall()
         return res
 
     def admin_resProcessing(self, type):
-        query = "SELECT user_id, id, status, params, result, uuid FROM request WHERE status='processing' AND type=%s"
+        query = "SELECT user_id, id, status, params, result, uuid, time FROM request WHERE status='processing' AND type=%s"
         args = (type,)
         res = self.execute_query(query,args).fetchall()
         return res
     
     def admin_resQueue(self, type):
-        query = "SELECT user_id, id, status, params, uuid FROM request WHERE request.status='in queue' AND request.type=%s"
+        query = "SELECT user_id, id, status, params, uuid, time FROM request WHERE request.status='in queue' AND request.type=%s"
         args = (type,)
         res = self.execute_query(query,args).fetchall()
         return res

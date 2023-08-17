@@ -2,6 +2,11 @@ import json
 from App.Controller import db_postgres_controller as db
 
 
+def find_req_with_uuid(uuid):
+    res = db.db.getReqInfo(uuid)
+    return res
+
+
 def get_dashboard_info():
     users_reqs_status = db.db.admin_getUsersRequestsStatus()
     dict_result = {"status-code":200, "result": {"done":0 , "in queue":0 , "processing":0}}
