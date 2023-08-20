@@ -35,4 +35,7 @@ configs = {
     'BOT_TOKEN': os.getenv('BOT_TOKEN') ,
     'BASE_URL': os.getenv('BASE_URL') ,
     'BASE_FILE_URL': os.getenv('BASE_FILE_URL') ,
+    
+    # Help the user how to send to the file. the file format is gif
+    'HELP_USER_SEND_FILE': os.getenv('HELP_USER_SEND_FILE'),
 }

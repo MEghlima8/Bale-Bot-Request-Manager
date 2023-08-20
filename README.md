@@ -1,6 +1,6 @@
 # bale bot request manager 
 Bale Bot Request Manager is a project that uses the APIs of the request manager project.
-This is version 0.1.2
+This is version 0.2.0
 
 
 ## Configuration

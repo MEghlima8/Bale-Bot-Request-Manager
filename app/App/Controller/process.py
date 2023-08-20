@@ -26,7 +26,7 @@ def process(req_uuid):
     else:
         return
     
-    
+    print('\nresult:::::::;: ',result)
     db.db.updateInRequest(req_uuid, result['request_id'], result['result'])
     return 'true'
     

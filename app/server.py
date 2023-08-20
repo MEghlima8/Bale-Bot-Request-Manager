@@ -16,11 +16,46 @@ from re import match
 import web_server
 
 
-
 TOKEN = config.configs['BOT_TOKEN']
 BASE_URL = config.configs['BASE_URL']
 BASE_FILE_URL = config.configs['BASE_FILE_URL']
      
+
+keyboard_start = [
+    [
+        InlineKeyboardButton("پنهان کردن در تصویر", callback_data="/hide-text-in-image"),
+        InlineKeyboardButton("استخراج از تصویر", callback_data="/get-hidden-text-from-image"),
+    ],
+    [
+        InlineKeyboardButton("پنهان کردن در صوت", callback_data="/hide-text-in-sound"),
+        InlineKeyboardButton("استخراج از صوت", callback_data="/get-hidden-text-from-sound"),
+    ],
+    [
+        InlineKeyboardButton("ارسال موقعیت مکانی", callback_data="/send-location"),
+        InlineKeyboardButton("جمع دو عدد", callback_data="/add-two-numbers"),
+    ],
+    [InlineKeyboardButton("نتیجه درخواست ها", callback_data="/get-result")],
+    [InlineKeyboardButton("راهنمای ارسال به صورت فایل", callback_data="/help")],
+]
+reply_markup_start = InlineKeyboardMarkup(keyboard_start)
+
+keyboard_cancel = [[
+            InlineKeyboardButton("بازگشت به صفحه اصلی", callback_data="/cancel")
+        ]]
+reply_markup_cancel = InlineKeyboardMarkup(keyboard_cancel)
+
+keyboard_cancel_help = [[
+            InlineKeyboardButton("بازگشت به صفحه اصلی", callback_data="/cancel"),
+            InlineKeyboardButton("راهنمای ارسال به صورت فایل", callback_data="/help")
+        ]]
+reply_markup_cancel_help = InlineKeyboardMarkup(keyboard_cancel_help)
+
+keyboard_cancel_getResult = [[
+            InlineKeyboardButton("بازگشت به صفحه اصلی", callback_data="/cancel"),
+            InlineKeyboardButton("نتیجه درخواست", callback_data="/get-result")
+        ]]
+reply_markup_cancel_getResult = InlineKeyboardMarkup(keyboard_cancel_getResult)
+
 
 def get_datetime():
     jdate = jdatetime.fromgregorian(datetime=datetime.now())
@@ -37,41 +72,6 @@ def get_datetime():
     now_datetime = json.dumps({'date':date , 'time':time})
     return now_datetime
 
-keyboard_start = [
-    [
-        InlineKeyboardButton("پنهان کردن در تصویر", callback_data="/hide-text-in-image"),
-        InlineKeyboardButton("استخراج از تصویر", callback_data="/get-hidden-text-from-image"),
-    ],
-    [
-        InlineKeyboardButton("پنهان کردن در صوت", callback_data="/hide-text-in-sound"),
-        InlineKeyboardButton("استخراج از صوت", callback_data="/get-hidden-text-from-sound"),
-    ],
-    [
-        InlineKeyboardButton("ارسال موقعیت مکانی", callback_data="/send-location"),
-        InlineKeyboardButton("جمع دو عدد", callback_data="/add-two-numbers"),
-    ],
-    [InlineKeyboardButton("نتیجه درخواست ها", callback_data="/get-result")],
-    [InlineKeyboardButton("راهنما", callback_data="/help")],
-]
-reply_markup_start = InlineKeyboardMarkup(keyboard_start)
-
-keyboard_cancel = [[
-            InlineKeyboardButton("بازگشت به صفحه اصلی", callback_data="/cancel")
-        ]]
-reply_markup_cancel = InlineKeyboardMarkup(keyboard_cancel)
-
-keyboard_cancel_help = [[
-            InlineKeyboardButton("بازگشت به صفحه اصلی", callback_data="/cancel"),
-            InlineKeyboardButton("راهنمای ارسال فایل", callback_data="/help")
-        ]]
-reply_markup_cancel_help = InlineKeyboardMarkup(keyboard_cancel_help)
-
-keyboard_cancel_getResult = [[
-            InlineKeyboardButton("بازگشت به صفحه اصلی", callback_data="/cancel"),
-            InlineKeyboardButton("نتیجه درخواست", callback_data="/get-result")
-        ]]
-reply_markup_cancel_getResult = InlineKeyboardMarkup(keyboard_cancel_getResult)
-
 
 async def start(update, context, _text, _STEP, chat_id):
     try:
@@ -86,6 +86,8 @@ async def start(update, context, _text, _STEP, chat_id):
     db.db.changeUserSTEP('home', chat_id)
     
 async def help(_update, context, _text, _STEP, chat_id):
+    help_user_send_file = config.configs['HELP_USER_SEND_FILE']
+    await context.bot.send_video(chat_id, help_user_send_file)
     await context.bot.send_message(chat_id, text=' برای ارسال تصویر و صدا به صورت فایل ابتدا از سمت چپ و پایین بر روی آیکون + ضربه بزنید سپس بر روی ارسال به صورت فایل ضربه بزنید')
 
 async def cancel(_update, context, _text, _STEP, chat_id):
@@ -216,7 +218,7 @@ async def msg_hide_text_in_image(_update, context, text, _STEP, chat_id):
     
     db.db.changeUserSecretMsg(text,chat_id)
     db.db.changeUserSTEP('handle-hide-text-in-image', chat_id)
-    await context.bot.send_message(chat_id=chat_id, text='تصویر مورد نظر را به صورت فایل ارسال کنید.\nاگر نمی دانید چگونه باید به صورت فایل ارسال کنید بر روی دکمه راهنمای ارسال فایل بزنید',reply_markup=reply_markup_cancel_help)
+    await context.bot.send_message(chat_id=chat_id, text='تصویر مورد نظر را به صورت فایل ارسال کنید.\nاگر نمی دانید چگونه باید به صورت فایل ارسال کنید بر روی دکمه راهنمای ارسال به صورت فایل بزنید',reply_markup=reply_markup_cancel_help)
 
 async def hide_text_in_image(update, context, text, _STEP, chat_id):
     message = db.db.getUserSecretMsg(chat_id)
@@ -228,7 +230,7 @@ async def hide_text_in_image(update, context, text, _STEP, chat_id):
     
     # Check the image sent as file or sent as image. must send as file
     if update.message.photo != ():
-        await context.bot.send_message(chat_id=chat_id, text='لطفا تصویر را به صورت فایل ارسال کنید.\nاگر نمی دانید چگونه باید به صورت فایل ارسال کنید بر روی دکمه راهنمای ارسال فایل بزنید',reply_markup=reply_markup_cancel_help)
+        await context.bot.send_message(chat_id=chat_id, text='لطفا تصویر را به صورت فایل ارسال کنید.\nاگر نمی دانید چگونه باید به صورت فایل ارسال کنید بر روی دکمه راهنمای ارسال به صورت فایل بزنید',reply_markup=reply_markup_cancel_help)
         return
         
     file = await context.bot.get_file(update.message.document)
@@ -248,7 +250,7 @@ async def hide_text_in_image(update, context, text, _STEP, chat_id):
 
 async def handle_get_hidden_text_from_image(_update, context, _text, _STEP, chat_id):
     db.db.changeUserSTEP('handle-get-hidden-text-from-image', chat_id)
-    await context.bot.send_message(chat_id=chat_id, text='تصویر مورد نظر را به صورت فایل ارسال کنید.\nاگر نمی دانید چگونه باید به صورت فایل ارسال کنید بر روی دکمه راهنمای ارسال فایل بزنید',reply_markup=reply_markup_cancel_help)
+    await context.bot.send_message(chat_id=chat_id, text='تصویر مورد نظر را به صورت فایل ارسال کنید.\nاگر نمی دانید چگونه باید به صورت فایل ارسال کنید بر روی دکمه راهنمای ارسال به صورت فایل بزنید',reply_markup=reply_markup_cancel_help)
 
 async def get_hidden_text_from_image(update, context, text, _STEP, chat_id):
     # Check the user sent image or not
@@ -258,7 +260,7 @@ async def get_hidden_text_from_image(update, context, text, _STEP, chat_id):
     
     # Check the image sent as file or sent as image. must send as file
     if update.message.photo != ():
-        await context.bot.send_message(chat_id=chat_id, text='تصویر مورد نظر را به صورت فایل ارسال کنید.\nاگر نمی دانید چگونه باید به صورت فایل ارسال کنید بر روی دکمه راهنمای ارسال فایل بزنید',reply_markup=reply_markup_cancel_help)
+        await context.bot.send_message(chat_id=chat_id, text='تصویر مورد نظر را به صورت فایل ارسال کنید.\nاگر نمی دانید چگونه باید به صورت فایل ارسال کنید بر روی دکمه راهنمای ارسال به صورت فایل بزنید',reply_markup=reply_markup_cancel_help)
         return        
         
     file = await context.bot.get_file(update.message.document)
@@ -285,7 +287,7 @@ async def msg_hide_text_in_sound(_update, context, text, _STEP, chat_id):
 
     db.db.changeUserSecretMsg(text,chat_id)
     db.db.changeUserSTEP('handle-hide-text-in-sound', chat_id)
-    await context.bot.send_message(chat_id=chat_id, text='صوت مورد نظر را به صورت فایل ارسال کنید.\nاگر نمی دانید چگونه باید به صورت فایل ارسال کنید بر روی دکمه راهنمای ارسال فایل بزنید',reply_markup=reply_markup_cancel_help)
+    await context.bot.send_message(chat_id=chat_id, text='صوت مورد نظر را به صورت فایل ارسال کنید.\nاگر نمی دانید چگونه باید به صورت فایل ارسال کنید بر روی دکمه راهنمای ارسال به صورت فایل بزنید',reply_markup=reply_markup_cancel_help)
 
 async def hide_text_in_sound(update, context, text, _STEP, chat_id):
     message = db.db.getUserSecretMsg(chat_id)
@@ -297,7 +299,7 @@ async def hide_text_in_sound(update, context, text, _STEP, chat_id):
     
     # Check the audio sent as file or sent as audio. must send as file
     if update.message.voice is not None:
-        await context.bot.send_message(chat_id=chat_id, text='صوت مورد نظر را به صورت فایل ارسال کنید.\nاگر نمی دانید چگونه باید به صورت فایل ارسال کنید بر روی دکمه راهنمای ارسال فایل بزنید',reply_markup=reply_markup_cancel_help)
+        await context.bot.send_message(chat_id=chat_id, text='صوت مورد نظر را به صورت فایل ارسال کنید.\nاگر نمی دانید چگونه باید به صورت فایل ارسال کنید بر روی دکمه راهنمای ارسال به صورت فایل بزنید',reply_markup=reply_markup_cancel_help)
         return
     
     file = await context.bot.get_file(update.message.document)
@@ -316,7 +318,7 @@ async def hide_text_in_sound(update, context, text, _STEP, chat_id):
 
 async def handle_get_hidden_text_from_sound(_update, context, _text, _STEP, chat_id):
     db.db.changeUserSTEP('handle-get-hidden-text-from-sound', chat_id)
-    await context.bot.send_message(chat_id=chat_id, text='صوت مورد نظر را به صورت فایل ارسال کنید.\nاگر نمی دانید چگونه باید به صورت فایل ارسال کنید بر روی دکمه راهنمای ارسال فایل بزنید',reply_markup=reply_markup_cancel_help)
+    await context.bot.send_message(chat_id=chat_id, text='صوت مورد نظر را به صورت فایل ارسال کنید.\nاگر نمی دانید چگونه باید به صورت فایل ارسال کنید بر روی دکمه راهنمای ارسال به صورت فایل بزنید',reply_markup=reply_markup_cancel_help)
 
 async def get_hidden_text_from_sound(update, context, text, _STEP, chat_id):
     # Check the user sent audio or not
@@ -326,7 +328,7 @@ async def get_hidden_text_from_sound(update, context, text, _STEP, chat_id):
     
     # Check the audio sent as file or sent as audio. must send as file
     if update.message.voice is not None:
-        await context.bot.send_message(chat_id=chat_id, text='صوت مورد نظر را به صورت فایل ارسال کنید.\nاگر نمی دانید چگونه باید به صورت فایل ارسال کنید بر روی دکمه راهنمای ارسال فایل بزنید',reply_markup=reply_markup_cancel_help)
+        await context.bot.send_message(chat_id=chat_id, text='صوت مورد نظر را به صورت فایل ارسال کنید.\nاگر نمی دانید چگونه باید به صورت فایل ارسال کنید بر روی دکمه راهنمای ارسال به صورت فایل بزنید',reply_markup=reply_markup_cancel_help)
         return
 
     file = await context.bot.get_file(update.message.document)
@@ -373,26 +375,35 @@ commands = [
 
 
 async def message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    
+    # Get chat id and message text
     try:
         text = update.callback_query.data
         chat_id = update.effective_chat.id
+        STEP = db.db.getUserSTEP(chat_id)[0]
+        print('STEP: ',STEP)
+        
+        # The user must complete the route or cancel. User can't go to another route while user is in a route
+        if STEP != 'home' and (text != '/cancel' and text !='/help' ):
+            await context.bot.send_message(chat_id=chat_id, text='لطفا درخواست خود را تکمیل یا بر روی بازگشت به صفحه اصلی ضربه بزنید.')
+            return
     except:
         text = update.message.text
         chat_id = update.message.chat_id
         
+    if text is None:
+        text = '/none' # For media or location, not a text
+    
     try:
         text,STEP = db.db.changeUserTextMessage(text, chat_id)    
     except: # Save user info in the database
         await start(update, context, None, None, chat_id)
         return
         
-    if text is None:
-        text = '/none' # It means sent media or location, not a text
-        
     if STEP == 'handle-get-result' and not text.startswith('/'):
         await get_result(text, update.message.chat_id, update, context)
         return
-
+    
     for command in commands:
         valid_command = False
         pattern, step, callback = command 
@@ -406,7 +417,7 @@ async def message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 
 
 def main():
-    # time.sleep(20)
+    time.sleep(20)
     
     # Run web server
     t = threading.Thread(None, web_server.main, None, ())

@@ -1,3 +1,7 @@
+.panels {
+  height: 600px !important;
+}
+
 .swal2-popup {
   font-size: 1.6rem !important;
 }
@@ -49,3 +53,26 @@
 .topnav1 .search-container1 button:hover {
   background: #ccc;
 }
+
+
+.pagination {
+  position: absolute;
+  bottom: 30;
+  padding-right: 480px;
+  display: inline-block;
+  justify-content: center;  
+}
+
+.pagination a {
+  color: black;
+  float: left;
+  padding: 8px 16px;
+  text-decoration: none;
+}
+
+.pagination a.active {
+  background-color: #347dbd;
+  color: white;
+}
+
+.pagination a:hover:not(.active) {background-color: #ddd;}

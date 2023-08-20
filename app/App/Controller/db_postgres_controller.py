@@ -67,6 +67,17 @@ class PostgreSQL:
         res = self.execute_query(query,args).fetchall()
         return res
     
+    def getUserInfo(self, data):  # data can be username or user id
+        try:
+            data = int(data)
+            query = "SELECT id, username,location FROM users WHERE id=%s"
+        except:
+            query = "SELECT id, username,location FROM users WHERE username=%s"
+        args = (data,)
+        res = self.execute_query(query,args).fetchall()
+        return res
+        
+    
     # Retrieve process result
     def getReqRes(self, req_uuid,user_id):
         query = "SELECT result,status,type,api_req_id FROM request WHERE uuid=%s AND user_id=%s"
@@ -121,6 +132,12 @@ class PostgreSQL:
         self.execute_query(query, args)
         return 'true'
 
+    def getUserSTEP(self,user_id):
+        query = "select step from users WHERE id=%s"
+        args = (user_id, )
+        text = self.execute_query(query, args).fetchall()[0]
+        return text
+        
 
 # Admin
     def admin_getUsersRequestsStatus(self):
@@ -135,48 +152,31 @@ class PostgreSQL:
         res = self.execute_query(query,args).fetchall()
         return res
 
-    
-    def admin_userResDone(self, type, user_id):
-        query = "SELECT * FROM request WHERE status='done' AND type=%s AND user_id=%s"
-        args = (type,user_id)
-        res = self.execute_query(query,args).fetchall()
-        return res    
-
-    def admin_userResQueue(self, type, user_id):
-        query = "SELECT * FROM request WHERE status='in queue' AND type=%s AND user_id=%s"
-        args = (type,user_id)
-        res = self.execute_query(query,args).fetchall()
-        return res    
-
-    def admin_userResProcessing(self, type, user_id):
-        query = "SELECT * FROM request WHERE status='processing' AND type=%s AND user_id=%s"
-        args = (type,user_id)
-        res = self.execute_query(query,args).fetchall()
-        return res    
-
-    
-    def admin_resDone(self, type):
-        query = "SELECT * FROM request WHERE status='done' AND type=%s"
+        
+    def admin_route_reqs_status(self,type):
+        query = "SELECT * FROM request WHERE request.type=%s"
         args = (type,)
         res = self.execute_query(query,args).fetchall()
         return res
 
-    def admin_resProcessing(self, type):
-        query = "SELECT * FROM request WHERE status='processing' AND type=%s"
-        args = (type,)
+    def admin_user_route_reqs_status(self,type,user_id):
+        query = "SELECT * FROM request WHERE request.type=%s AND user_id=%s"
+        args = (type,user_id)
         res = self.execute_query(query,args).fetchall()
         return res
+
     
-    def admin_resQueue(self, type):
-        query = "SELECT * FROM request WHERE request.status='in queue' AND request.type=%s"
-        args = (type,)
+    
+    def admin_userRes(self, type, user_id):
+        query = "SELECT * FROM request WHERE type=%s AND user_id=%s"
+        args = (type,user_id)
         res = self.execute_query(query,args).fetchall()
-        return res
-    
+        return res    
+
 
     # Users info
     def admin_get_users_info(self):
-        query = "SELECT id, username FROM users"
+        query = "SELECT id, username, location FROM users"
         args = ()
         res = self.execute_query(query,args).fetchall()
         return res

@@ -84,10 +84,11 @@
 
             <!-- Top Bar -->
             <nav class="navbar">
-                <div v-if="admin_panel !== 'admin-users-info' && admin_panel !== 'admin-user-reqs'" class="topnav1">
+                <div v-if="admin_panel !== 'admin-user-reqs' && admin_panel !== 'admin-dashboard'" class="topnav1">
                     <div class="search-container1 ">
                       <form>
-                        <input v-model="search_bar_val" type="text" placeholder="جستجو با شناسه..." style="font: 1.25rem/3">
+                        <input v-if="admin_panel=='admin-users-info'" v-model="search_bar_val" type="text" placeholder="جستجو با آیدی یا نام کاربری..." style="font: 1.25rem/3">
+                        <input v-else v-model="search_bar_val" type="text" placeholder="جستجو با شناسه..." style="font: 1.25rem/3">
                         <button @click.prevent="onClick_searchBarAdvs()" type="submit">
                             <span class="material-symbols-outlined">search</span>
                         </i></button>
@@ -126,7 +127,7 @@
                                 </a>
                                 <ul class="ml-menu" style="display: block;">
                                     <li>
-                                        <a style="background-color:beige" @click.prevent="admin_resAddCalc" href="#" >
+                                        <a style="background-color:beige" @click.prevent="admin_resRouteUsers('/add-two-numbers',1,'admin-res-add-calc')" href="#" >
                                             <span>نتایج همه کاربران</span>
                                         </a>
                                     </li>
@@ -147,7 +148,7 @@
                                         </a>
                                         <ul class="ml-menu" style="display: block;">
                                             <li>
-                                                <a style="background-color:beige" @click.prevent="admin_resStegImg"  href="">نتایج همه کاربران</a>
+                                                <a style="background-color:beige" @click.prevent="admin_resRouteUsers('/hide-text-in-image',1,'admin-res-steg-img')"  href="">نتایج همه کاربران</a>
                                             </li>
                                         </ul>
                                     </li>
@@ -158,7 +159,7 @@
                                         </a>
                                         <ul class="ml-menu" style="display: block;">
                                             <li>
-                                                <a style="background-color:beige" @click.prevent="admin_resExtrStegImg"  href="">نتایج همه کاربران</a>
+                                                <a style="background-color:beige" @click.prevent="admin_resRouteUsers('/get-hidden-text-from-image',1,'admin-res-extr-steg-img')"  href="">نتایج همه کاربران</a>
                                             </li>
                                         </ul>
                                     </li>
@@ -169,7 +170,7 @@
                                         </a>
                                         <ul class="ml-menu" style="display: block;">
                                             <li>
-                                                <a style="background-color:beige" @click.prevent="admin_resStegAudio" href="">نتایج همه کاربران</a>
+                                                <a style="background-color:beige" @click.prevent="admin_resRouteUsers('/hide-text-in-sound',1,'admin-res-steg-audio')" href="">نتایج همه کاربران</a>
                                             </li>
                                         </ul>
                                     </li>
@@ -181,7 +182,7 @@
                                         </a>
                                         <ul class="ml-menu" style="display: block;">
                                             <li>
-                                                <a style="background-color:beige" @click.prevent="admin_resExtrStegAudio" href="">نتایج همه کاربران</a>
+                                                <a style="background-color:beige" @click.prevent="admin_resRouteUsers('/get-hidden-text-from-sound',1,'admin-res-extr-audio')" href="">نتایج همه کاربران</a>
                                             </li>
                                         </ul>
                                     </li>
@@ -196,7 +197,7 @@
                                 </a>
                                 <ul class="ml-menu" style="display: block;">
                                     <li>
-                                        <a style="background-color:beige" @click.prevent="admin_usersInfo" href="#" >
+                                        <a style="background-color:beige" @click.prevent="admin_resUsersInfo(1, 'admin-res-add-calc')" href="#" >
                                             <span>نمایش اطلاعات همه کاربران</span>
                                         </a>
                                     </li>
@@ -328,7 +329,7 @@
                                 <div class="header">
                                     <h2><b>عملیات جمع دو عدد</b> </h2>
                                 </div>
-                                <div class="body">
+                                <div class="body panels">
                                     <div class="table-responsive">
                                         <table class="table table-hover dashboard-task-infos">
                                             <thead>
@@ -356,8 +357,8 @@
                                                 </tr>
         
                                                 <tr v-for="req in res_processing">
+                                                    <td>${ req[1] }$</td>
                                                     <td>${ req[8] }$</td>
-                                                    <td>${ req[5] }$</td>
                                                     <td>${ req[4]['date'] }$</td>
                                                     <td>${ req[4]['time'] }$</td>
                                                     <td><span class="label bg-blue">در حال انجام</span></td>
@@ -367,8 +368,8 @@
                                                 </tr>
         
                                                 <tr v-for="req in res_queue">
+                                                    <td>${ req[1] }$</td>
                                                     <td>${ req[8] }$</td>
-                                                    <td>${ req[4] }$</td>
                                                     <td>${ req[4]['date'] }$</td>
                                                     <td>${ req[4]['time'] }$</td>
                                                     <td><span class="label bg-orange">در صف</span></td>
@@ -379,6 +380,15 @@
                                             </tbody>
                                         </table>
                                     </div>
+                                    <div class="pagination">
+                                        <!-- <a href="#">&laquo;</a> -->
+                                        <a v-for="(page_num,index) in pages"
+                                            :key="index"
+                                            @click.prevent="admin_resRouteUsers('/add-two-numbers',index + 1,'admin-res-add-calc')"
+                                            :class="{ active: isActivePage(index + 1) }" 
+                                            href="#">${ page_num }$</a>
+                                        <!-- <a href="#">&raquo;</a> -->
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -387,8 +397,6 @@
                 </div>
             </section>        
             <!-- # admin-Res-Add-calc panel  -->
-
-
 
 
             <!-- admin-res-extr-audio panel  -->
@@ -401,7 +409,7 @@
                                 <div class="header">
                                     <h2><b>عملیات استخراج متن از صدا</b> </h2>
                                 </div>
-                                <div class="body">
+                                <div class="body panels">
                                     <div class="table-responsive">
                                         <table class="table table-hover dashboard-task-infos">
                                             <thead>
@@ -448,13 +456,22 @@
                                             </tbody>
                                         </table>
                                     </div>
+                                    <div class="pagination">
+                                        <!-- <a href="#">&laquo;</a> -->
+                                        <a v-for="(page_num,index) in pages"
+                                            :key="index"
+                                            @click.prevent="admin_resRouteUsers('/get-hidden-text-from-sound',index + 1,'admin-res-extr-audio')"
+                                            :class="{ active: isActivePage(index + 1) }" 
+                                            href="#">${ page_num }$</a>
+                                        <!-- <a href="#">&raquo;</a> -->
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>        
-            <!-- # admin-res-extr-audio panel  -->
+            <!-- #END# admin-res-extr-audio panel  -->
 
 
 
@@ -467,7 +484,7 @@
                                 <div class="header">
                                     <h2><b>عملیات پنهان کردن متن در صدا </b></h2>
                                 </div>
-                                <div class="body">
+                                <div class="body panels">
                                     <div class="table-responsive">
                                         <table class="table table-hover dashboard-task-infos">
                                             <thead>
@@ -518,6 +535,15 @@
                                             </tbody>
                                         </table>
                                     </div>
+                                    <div class="pagination">
+                                        <!-- <a href="#">&laquo;</a> -->
+                                        <a v-for="(page_num,index) in pages"
+                                            :key="index"
+                                            @click.prevent="admin_resRouteUsers('/hide-text-in-sound',index +1,'admin-res-steg-audio')"
+                                            :class="{ active: isActivePage(index + 1) }" 
+                                            href="#">${ page_num }$</a>
+                                        <!-- <a href="#">&raquo;</a> -->
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -537,7 +563,7 @@
                                 <div class="header">
                                     <h2><b> عملیات استخراج متن از تصویر</b> </h2>
                                 </div>
-                                <div class="body">
+                                <div class="body panels">
                                     <div class="table-responsive">
                                         <table class="table table-hover dashboard-task-infos">
                                             <thead>
@@ -584,6 +610,15 @@
                                             </tbody>
                                         </table>
                                     </div>
+                                    <div class="pagination">
+                                        <!-- <a href="#">&laquo;</a> -->
+                                        <a v-for="(page_num,index) in pages"
+                                            :key="index"
+                                            @click.prevent="admin_resRouteUsers('/get-hidden-text-from-image',index + 1,'admin-res-extr-steg-img')"
+                                            :class="{ active: isActivePage(index + 1) }" 
+                                            href="#">${ page_num }$</a>
+                                        <!-- <a href="#">&raquo;</a> -->
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -605,7 +640,7 @@
                                 <div class="header">
                                     <h2><b>عملیات پنهان کردن متن در تصویر</b> </h2>
                                 </div>
-                                <div class="body">
+                                <div class="body panels">
                                     <div class="table-responsive">
                                         <table class="table table-hover dashboard-task-infos">
                                             <thead>
@@ -655,6 +690,15 @@
                                                 </tr>
                                             </tbody>
                                         </table>
+                                    </div>
+                                    <div class="pagination">
+                                        <!-- <a href="#">&laquo;</a> -->
+                                        <a v-for="(page_num,index) in pages"
+                                            :key="index"
+                                            @click.prevent="admin_resRouteUsers('/hide-text-in-image',index + 1,'admin-res-steg-img')"
+                                            :class="{ active: isActivePage(index + 1) }" 
+                                            href="#">${ page_num }$</a>
+                                        <!-- <a href="#">&raquo;</a> -->
                                     </div>
                                 </div>
                             </div>
@@ -678,7 +722,7 @@
                                 <div class="header">
                                     <h2>اطلاعات کاربران </h2>
                                 </div>
-                                <div class="body">
+                                <div class="body panels">
                                     <div class="table-responsive">
                                         <table class="table table-hover dashboard-task-infos">
                                             <thead>
@@ -686,16 +730,28 @@
                                                     <th>آیدی کاربر</th>
                                                     <th>نام کاربری</th>
                                                     <th>فعالیت های کاربر</th>
+                                                    <th>موقعیت مکانی</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 <tr v-for="user in users_info">
                                                     <td>${ user[0] }$</td>
                                                     <td>${ user[1] }$</td>
-                                                    <td> <a @click.prevent="getUserReqs(user[0])" href="#" >مشاهده</a> </td>
+                                                    <td> <a @click.prevent="getUserReqs(user[0], user[1], 1, 1, 1, 1, 1)" href="#" >مشاهده</a> </td>
+                                                    <td v-if="user[2] == null"> موقعیت مکانی ثبت نشده</td>
+                                                    <td v-else> <a :href="user[2]" target="_blank" >مشاهده در نقشه</a> </td>
                                                 </tr>
                                             </tbody>
                                         </table>
+                                    </div>
+                                    <div class="pagination">
+                                        <!-- <a href="#">&laquo;</a> -->
+                                        <a v-for="(page_num,index) in pages"
+                                            :key="index"
+                                            @click.prevent="admin_resUsersInfo(index + 1, 'admin-res-add-calc')"
+                                            :class="{ active: isActivePage(index + 1) }" 
+                                            href="#">${ page_num }$</a>
+                                        <!-- <a href="#">&raquo;</a> -->
                                     </div>
                                 </div>
                             </div>
@@ -717,14 +773,15 @@
                         <div class="col-xs-12 col-sm-12">
                             <div class="card" style="background-color:antiquewhite">
                                 <div class="header">
-                                    <h2><b>نتایج عملیات جمع </b></h2>
+                                    <h2><b>عملیات جمع دو عدد</b></h2>
+                                    <br>
+                                    <h5>نام کاربری: <b>${username}$</b> | آیدی کاربر: <b>${user_id}$</b></h5>
                                 </div>
-                                <div class="body">
+                                <div class="body panels">
                                     <div class="table-responsive">
                                         <table class="table table-hover dashboard-task-infos">
                                             <thead>
                                                 <tr>
-                                                    <th>آیدی کاربر</th>
                                                     <th>شناسه</th>
                                                     <th>تاریخ</th>
                                                     <th>زمان</th>
@@ -736,7 +793,6 @@
                                             </thead>
                                             <tbody>
                                                 <tr v-for="req in add_calc_completed_reqs">
-                                                    <td>${ req[1] }$</td>
                                                     <td>${ req[8] }$</td>
                                                     <td>${ req[4]['date'] }$</td>
                                                     <td>${ req[4]['time'] }$</td>
@@ -747,7 +803,6 @@
                                                 </tr>
         
                                                 <tr v-for="req in add_calc_processing_reqs">
-                                                    <td>${ req[1] }$</td>
                                                     <td>${ req[8] }$</td>
                                                     <td>${ req[4]['date'] }$</td>
                                                     <td>${ req[4]['time'] }$</td>
@@ -758,7 +813,6 @@
                                                 </tr>
         
                                                 <tr v-for="req in add_calc_inQueue_reqs">
-                                                    <td>${ req[1] }$</td>
                                                     <td>${ req[8] }$</td>
                                                     <td>${ req[4]['date'] }$</td>
                                                     <td>${ req[4]['time'] }$</td>
@@ -769,6 +823,15 @@
                                                 </tr>
                                         </table>
                                     </div>
+                                    <div class="pagination">
+                                        <!-- <a href="#">&laquo;</a> -->
+                                        <a v-for="(page_num,index) in add_calc_pages"
+                                            :key="index"
+                                            @click.prevent="changePageInUserReqsPanel(index+1, '/add-two-numbers')"
+                                            :class="{ active: isActivePageAddCalc(index + 1) }" 
+                                            href="#">${ page_num }$</a>
+                                        <!-- <a href="#">&raquo;</a> -->
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -778,14 +841,15 @@
                         <div class="col-xs-12 col-sm-12">
                             <div class="card" style="background-color:transparent">
                                 <div class="header">
-                                    <h2><b>نتایج عملیات پنهان کردن در تصویر </b></h2>
+                                    <h2><b> عملیات پنهان کردن در تصویر </b></h2>
+                                    <br>
+                                    <h5>نام کاربری: <b>${username}$</b> | آیدی کاربر: <b>${user_id}$</b></h5>
                                 </div>
-                                <div class="body">
+                                <div class="body panels">
                                     <div class="table-responsive">
                                         <table class="table table-hover dashboard-task-infos">
                                             <thead>
                                                 <tr>
-                                                    <th>آیدی کاربر</th>
                                                     <th>شناسه</th>
                                                     <th>تاریخ</th>
                                                     <th>زمان</th>
@@ -797,7 +861,6 @@
                                             </thead>
                                             <tbody>
                                                 <tr v-for="req in img_hide_completed_reqs">
-                                                    <td>${ req[1] }$</td>
                                                     <td>${ req[8] }$</td>
                                                     <td>${ req[4]['date'] }$</td>
                                                     <td>${ req[4]['time'] }$</td>
@@ -808,7 +871,6 @@
                                                 </tr>
         
                                                 <tr v-for="req in img_hide_processing_reqs">
-                                                    <td>${ req[1] }$</td>
                                                     <td>${ req[8] }$</td>
                                                     <td>${ req[4]['date'] }$</td>
                                                     <td>${ req[4]['time'] }$</td>
@@ -819,7 +881,6 @@
                                                 </tr>
         
                                                 <tr v-for="req in img_hide_inQueue_reqs">
-                                                    <td>${ req[1] }$</td>
                                                     <td>${ req[8] }$</td>
                                                     <td>${ req[4]['date'] }$</td>
                                                     <td>${ req[4]['time'] }$</td>
@@ -831,6 +892,15 @@
                                             </tbody>
                                         </table>
                                     </div>
+                                    <div class="pagination">
+                                        <!-- <a href="#">&laquo;</a> -->
+                                        <a v-for="(page_num,index) in img_hide_pages"
+                                            :key="index"
+                                            @click.prevent="changePageInUserReqsPanel(index + 1,'/hide-text-in-image')"
+                                            :class="{ active: isActivePageImgHide(index + 1) }" 
+                                            href="#">${ page_num }$</a>
+                                        <!-- <a href="#">&raquo;</a> -->
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -840,14 +910,15 @@
                         <div class="col-xs-12 col-sm-12">
                             <div class="card" style="background-color:beige">
                                 <div class="header">
-                                    <h2><b>نتایج عملیات استخراج از تصویر </b></h2>
+                                    <h2><b> عملیات استخراج از تصویر </b></h2>
+                                    <br>
+                                    <h5>نام کاربری: <b>${username}$</b> | آیدی کاربر: <b>${user_id}$</b></h5>
                                 </div>
-                                <div class="body">
+                                <div class="body panels">
                                     <div class="table-responsive">
                                         <table class="table table-hover dashboard-task-infos">
                                             <thead>
                                                 <tr>
-                                                    <th>آیدی کاربر</th>
                                                     <th>شناسه</th>
                                                     <th>تاریخ</th>
                                                     <th>زمان</th>
@@ -858,7 +929,6 @@
                                             </thead>
                                             <tbody>
                                                 <tr v-for="req in img_get_completed_reqs">
-                                                    <td>${ req[1] }$</td>
                                                     <td>${ req[8] }$</td>
                                                     <td>${ req[4]['date'] }$</td>
                                                     <td>${ req[4]['time'] }$</td>
@@ -868,7 +938,6 @@
                                                 </tr>
         
                                                 <tr v-for="req in img_get_processing_reqs">
-                                                    <td>${ req[1] }$</td>
                                                     <td>${ req[8] }$</td>
                                                     <td>${ req[4]['date'] }$</td>
                                                     <td>${ req[4]['time'] }$</td>
@@ -878,7 +947,6 @@
                                                 </tr>
         
                                                 <tr v-for="req in img_get_inQueue_reqs">
-                                                    <td>${ req[1] }$</td>
                                                     <td>${ req[8] }$</td>
                                                     <td>${ req[4]['date'] }$</td>
                                                     <td>${ req[4]['time'] }$</td>
@@ -889,6 +957,15 @@
                                             </tbody>
                                         </table>
                                     </div>
+                                    <div class="pagination">
+                                        <!-- <a href="#">&laquo;</a> -->
+                                        <a v-for="(page_num,index) in img_get_pages"
+                                            :key="index"
+                                            @click.prevent="changePageInUserReqsPanel(index+1, '/get-hidden-text-from-image')"
+                                            :class="{ active: isActivePageImgGet(index + 1) }" 
+                                            href="#">${ page_num }$</a>
+                                        <!-- <a href="#">&raquo;</a> -->
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -898,14 +975,15 @@
                         <div class="col-xs-12 col-sm-12">
                             <div class="card" style="background-color:wheat">
                                 <div class="header">
-                                    <h2><b>نتایج عملیات پنهان کردن در صدا </b></h2>
+                                    <h2><b> عملیات پنهان کردن در صدا </b></h2>
+                                    <br>
+                                    <h5>نام کاربری: <b>${username}$</b> | آیدی کاربر: <b>${user_id}$</b></h5>
                                 </div>
-                                <div class="body">
+                                <div class="body panels">
                                     <div class="table-responsive">
                                         <table class="table table-hover dashboard-task-infos">
                                             <thead>
                                                 <tr>
-                                                    <th>آیدی کاربر</th>
                                                     <th>شناسه</th>
                                                     <th>تاریخ</th>
                                                     <th>زمان</th>
@@ -917,7 +995,6 @@
                                             </thead>
                                             <tbody>
                                                 <tr v-for="req in sound_hide_completed_reqs">
-                                                    <td>${ req[1] }$</td>
                                                     <td>${ req[8] }$</td>
                                                     <td>${ req[4]['date'] }$</td>
                                                     <td>${ req[4]['time'] }$</td>
@@ -928,7 +1005,6 @@
                                                 </tr>
         
                                                 <tr v-for="req in sound_hide_processing_reqs">
-                                                    <td>${ req[1] }$</td>
                                                     <td>${ req[8] }$</td>
                                                     <td>${ req[4]['date'] }$</td>
                                                     <td>${ req[4]['time'] }$</td>
@@ -939,7 +1015,6 @@
                                                 </tr>
         
                                                 <tr v-for="req in sound_hide_inQueue_reqs">
-                                                    <td>${ req[1] }$</td>
                                                     <td>${ req[8] }$</td>
                                                     <td>${ req[4]['date'] }$</td>
                                                     <td>${ req[4]['time'] }$</td>
@@ -951,6 +1026,15 @@
                                             </tbody>
                                         </table>
                                     </div>
+                                    <div class="pagination">
+                                        <!-- <a href="#">&laquo;</a> -->
+                                        <a v-for="(page_num,index) in sound_hide_pages"
+                                            :key="index"
+                                            @click.prevent="changePageInUserReqsPanel(index+1, '/hide-text-in-sound')"
+                                            :class="{ active: isActivePageSoundHide(index + 1) }" 
+                                            href="#">${ page_num }$</a>
+                                        <!-- <a href="#">&raquo;</a> -->
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -960,14 +1044,15 @@
                         <div class="col-xs-12 col-sm-12">
                             <div class="card" style="background-color:darkgray">
                                 <div class="header">
-                                    <h2><b>نتایج عملیات استخراج از صدا </b></h2>
+                                    <h2><b> عملیات استخراج از صدا </b></h2>
+                                    <br>
+                                    <h5>نام کاربری: <b>${username}$</b> | آیدی کاربر: <b>${user_id}$</b></h5>
                                 </div>
-                                <div class="body">
+                                <div class="body panels">
                                     <div class="table-responsive">
                                         <table class="table table-hover dashboard-task-infos">
                                             <thead>
                                                 <tr>
-                                                    <th>آیدی کاربر</th>
                                                     <th>شناسه</th>
                                                     <th>تاریخ</th>
                                                     <th>زمان</th>
@@ -978,7 +1063,6 @@
                                             </thead>
                                             <tbody>
                                                 <tr v-for="req in sound_get_completed_reqs">
-                                                    <td>${ req[1] }$</td>
                                                     <td>${ req[8] }$</td>
                                                     <td>${ req[4]['date'] }$</td>
                                                     <td>${ req[4]['time'] }$</td>
@@ -988,7 +1072,6 @@
                                                 </tr>
         
                                                 <tr v-for="req in sound_get_processing_reqs">
-                                                    <td>${ req[1] }$</td>
                                                     <td>${ req[8] }$</td>
                                                     <td>${ req[4]['date'] }$</td>
                                                     <td>${ req[4]['time'] }$</td>
@@ -998,7 +1081,6 @@
                                                 </tr>
         
                                                 <tr v-for="req in sound_get_inQueue_reqs">
-                                                    <td>${ req[1] }$</td>
                                                     <td>${ req[8] }$</td>
                                                     <td>${ req[4]['date'] }$</td>
                                                     <td>${ req[4]['time'] }$</td>
@@ -1009,6 +1091,15 @@
                                             </tbody>
                                         </table>
                                     </div>
+                                    <div class="pagination">
+                                        <!-- <a href="#">&laquo;</a> -->
+                                        <a v-for="(page_num,index) in sound_get_pages"
+                                            :key="index"
+                                            @click.prevent="changePageInUserReqsPanel(index+1, '/get-hidden-text-from-sound')"
+                                            :class="{ active: isActivePageSoundGet(index + 1) }" 
+                                            href="#">${ page_num }$</a>
+                                        <!-- <a href="#">&raquo;</a> -->
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1018,11 +1109,6 @@
                 </div>
             </section>        
             <!-- # admin-user-reqs panel  -->   
-
-
-
-
-
 
         </section>
 
