@@ -3,6 +3,13 @@ Bale Bot Request Manager is a project that uses the APIs of the request manager 
 This is version 0.2.0
 
 
+## The problems of this project that must be solved:
+1-Fixing the user location problem in the admin panel
+2- When the user sends a request, if the request was not completed yet and he only gave us the request ID and the request result button, click on the request result to show us the result (no need to enter the request ID).
+3 - Returns the result of the requests that have not been returned to the user
+4- Return the request ID to the user in a copyable form that can be easily copied in the mobile version
+5- Request username and password to request the addition of two numbers
+
 ## Configuration
 Before you start using this application, make sure to update the configurations in the `.env` file. Below are some important settings you need to modify:
 
